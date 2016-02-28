@@ -1,3 +1,5 @@
+![Spotter](./spotter.jpg)
+
 # Spotter
 Here to help you bench.
 
