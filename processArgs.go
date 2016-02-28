@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+// Function that will take in the command line arguments and process them.
+// Will most likely be a void function for the time being. Haven't decided yet.
 func ProcessArgs(args []string) {
 	
 	if len(args) == 1 {
@@ -19,7 +21,6 @@ func ProcessArgs(args []string) {
 			fmt.Print("\tYou passed in a header flag\n")
 		} else if newArgs[i] == "-n" {
 			fmt.Print("\tYou passed in a number of requests flag\n")
-
 		} else if newArgs[i] == "-c" {
 			fmt.Print("\tYou passed in a number of concurrent request flag\n")
 		} else if newArgs[i] == "-m" {
