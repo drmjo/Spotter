@@ -1,0 +1,9 @@
+#!/bin/bash
+# All the handy stuff you won't have to worry about.
+
+echo "Running the pre-commit hooks."
+# Will attempt to run gofmt against all go files.
+./format.sh
+
+# Get to the github chopper. 
+exit $?
