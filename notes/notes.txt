@@ -1,30 +1,22 @@
-Go packages I will probably need:
-	1. OS
-	2. io/ioutil
-	3. io
-	4. fmt 
-	5. path
-	6. time 
-	7. strconv
-	8. runtime 
-	9. flags
-	10. strings
-	11. http
+==UPDATE==
+Overhauling the original code. 
+This works waaay better.
 
+==== PLANNED FLAGS ====
 -h header
 -n number of request
 -c number of concurrent requests 
 -m for request type 
 
-----------------------PLAN AS OF 2-27-16-----------------------
-	1. check the request type they are trying to send
-	2. look for the url
-	3. format all the necessary data for the http package
-	4. perhaps some profit? 
+format all the necessary data for the http package
 	
-	THINGS TO CONSIDER GOING FORWARD
+THINGS TO CONSIDER GOING FORWARD
 	--THREAD POOLS BASED ON THE CONCURRENCY FACTOR
 	--SYNCING THE THREADS TO GET THE AVERAGE RESPONSE TIME
 	--PASSING IN JSON TO USE AS THE POST BODIES FOR SOME.
+
 --------------OUTSIDE TOOLS--------
 1. https://gocover.io/ 
+
+
+
