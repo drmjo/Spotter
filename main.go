@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 )
+
 // Entry point to our dope program.
 func main() {
 
@@ -21,13 +22,14 @@ func main() {
 	requestTypeFlag := flag.String("m", "", "The type of the request")
 
 	// Parse the command line flags
-	flag.Parse();
+	flag.Parse()
 
 	// Make sure we are getting what we 
 	fmt.Println("Header: ", *headerFlag)
 	fmt.Println("Number of requests: ", *numRequestFlag)
 	fmt.Println("Concurrency Level: ", *concurrentRequestFlag)
 	fmt.Println("Request Type: ", *requestTypeFlag)
+	
 	// Since this returns an array we are going to have to make sure there is something in it before trying to access by index.
 	fmt.Println("Web Server to bench: ", flag.Args())
 }

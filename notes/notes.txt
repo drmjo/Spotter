@@ -1,22 +1,32 @@
 ==UPDATE==
+
+4/3/16
 Overhauling the original code. 
 This works waaay better.
+
+
+4/4/16
+Plan is probably do concurrency last? But at least allow for the flag to be passed in. 
 
 ==== PLANNED FLAGS ====
 -h header
 -n number of request
 -c number of concurrent requests 
 -m for request type 
+- Any others?
 
-format all the necessary data for the http package
-	
 THINGS TO CONSIDER GOING FORWARD
 	--THREAD POOLS BASED ON THE CONCURRENCY FACTOR
 	--SYNCING THE THREADS TO GET THE AVERAGE RESPONSE TIME
 	--PASSING IN JSON TO USE AS THE POST BODIES FOR SOME.
 
---------------OUTSIDE TOOLS--------
-1. https://gocover.io/ 
 
+--------------OUTSIDE TOOLS--------
+1. https://gocover.io/  : For testing and just to try it out. 
+
+
+-----PROJECT NOTES-------
+
+Probably going to test my implementation against AB and see how close I get. 
 
 
