@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"unsafe"
 	"strings"
 	"os"
 )
@@ -18,7 +17,7 @@ var requestTypeFlag = flag.String("m", "GET", "The type of the request")
 
 func main() {
 	flag.Parse()
-	fmt.Println("Header: ", *headerFlag, "Address of Header Var: ", &headerFlag, unsafe.Sizeof(headerFlag))
+	fmt.Println("Header: ", *headerFlag, "Address of Header Var: ", &headerFlag)
 	fmt.Println("Number of requests: ", *numRequestFlag, "Address of requests var: ", &numRequestFlag)
 	fmt.Println("Concurrency Level: ", *concurrentRequestFlag, "Address of concurreny var: ", &concurrentRequestFlag)
 	fmt.Println("Request Type: ", *requestTypeFlag, "Adddress of Request type var: ", &requestTypeFlag)
