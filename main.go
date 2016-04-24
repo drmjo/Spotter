@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 	"unsafe"
 )
 
@@ -26,10 +27,16 @@ func main() {
 }
 
 func createClient(url string) {
+	defer timer(time.Now(), "Http Request")
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
 	status := resp.Status
-	fmt.Printf("%s", status)
+	fmt.Println(status)
+}
+
+func timer(start time.Time, name string) {
+	timeTaken := time.Since(start)
+	log.Printf("%s took %s", name, timeTaken)
 }
