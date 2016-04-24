@@ -23,17 +23,20 @@ func main() {
 
 	//Since this returns an array we are going to have to make sure there is something in it before trying to access by index.
 	fmt.Println("Web Server to bench: ", flag.Arg(0))
-	createClient(flag.Arg(0))
+	sendRequest(flag.Arg(0), *numRequestFlag)
 }
 
-func createClient(url string) {
+func sendRequest(url string, requestNumber int) {
 	defer timer(time.Now(), "Http Request")
-	resp, err := http.Get(url)
-	if err != nil {
-		log.Fatal(err)
+	for requestNumber > 0 {
+		resp, err := http.Get(url)
+		if err != nil {
+			log.Fatal(err)
+		}
+		status := resp.Status
+		fmt.Println(status)
+		requestNumber--
 	}
-	status := resp.Status
-	fmt.Println(status)
 }
 
 func timer(start time.Time, name string) {
