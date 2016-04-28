@@ -61,19 +61,16 @@ func determineRequestType(requestType *string) {
 	switch strings.ToUpper(*requestType) {
 	case "GET":
 		*requestType = "GET"
-		return
 	case "POST":
 		*requestType = "POST"
-		return
 	case "PUT":
 		*requestType = "PUT"
-		return
 	case "DELETE":
 		*requestType = "DELETE"
-		return
+	default:
+		log.Fatalf("Cannot process the request type of %s", *requestType)
+		os.Exit(1)
 	}
-	log.Fatalf("Cannot process the request type of %s", *requestType)
-	os.Exit(1)
 }
 
 func timer(start time.Time, name string) {
