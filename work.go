@@ -7,67 +7,52 @@ import(
 	"time"
 )
 
-// TODO this will likely hav to receive from a channel of struct array for url and request type.
-func Worker(id int, requestChannel chan *http.Request, responseChannel chan Response) {
-	for work := range jobs {
-		fmt.Println("worker", id, "request numer", requestNumber)
-		sendRequest(work,  )
-	}
-}
-
-// TODO this will likely have request number removed from the signature.
-func sendRequest(url string, requestNumber int, requestType string) {
-	client := &http.Client{}
-	determineRequestType(&requestType)
-	req, err := http.NewRequest(requestType, url, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for requestNumber > 0 {
-		requestTime := time.Now()
-		resp, err := client.Do(req)
+func DistributeWork(requestChannel chan *http.Request, numberOfRequests int, requestType string, url string) {
+	for i := 0; i < numberOfRequests; i++ {
+		request, err := http.NewRequest(requestType, url, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
-		status := resp.Status
-		testTime := time.Since(requestTime)
-		timeList = append(timeList, int64(testTime))
-		fmt.Printf("%s \tRequest time: %s \n", status, testTime)
-		requestNumber--
+		requestChannel <- request
 	}
-	fmt.Printf("Average request time was: %s \n", determineAverageRequestTime(timeList))
 }
 
-
-//EVERYTHING BENEATH HERE CAN MOST LIKELY STAY.
-
-func determineAverageRequestTime(timeList []int64) time.Duration {
-	var averageTime int64
-	for i := range timeList {
-		averageTime += timeList[i]
+func WorkPool(requestChannel chan *http.Request, responseChannel chan HttpResponse, concurrencyLevel int) {
+	transport := &http.transport{}
+	for i := 0; i < concurrencyLevel; i++ {
+		go worker(t, requestChannel, responseChannel)
 	}
-	return time.Duration(averageTime/int64(len(timeList)))
 }
 
-func determineRequestType(requestType *string) {
-	switch strings.ToUpper(*requestType) {
-	case "GET":
-		*requestType = "GET"
-	case "POST":
-		*requestType = "POST"
-	case "PUT":
-		*requestType = "PUT"
-	case "DELETE":
-		*requestType = "DELETE"
-	default:
-		log.Fatalf("Cannot process the request type of %s", *requestType)
-		os.Exit(1)
+func worker(transport *http.Transport, requestChannel chan *http.Request, responseChannel chan HttpResponse) {
+	for work := range requestChannel {
+		start := time.Now()
+		responseRoundtrip, err := transport.RoundTrip(work)
+		timeTaken := time.Since(start)
+		response := HttpResponse{responseRoundtrip, err, int64(timeTaken)}
+		responseChannel <- response
+	}
+}
+
+func ProcessResults(responseChannel chan Response, numberOfRequests int) {
+	for request := 0;  request < numberOfRequests; request++ {
+		select {
+			case response, ok := <-responseChannel:
+				if ok != nil {
+					if response.err != nil {
+						log.Println(response.err)
+					} else {
+						if err := response.Body.Close(); err != nil {
+							log.Println(response.err)
+						}
+					}
+				}
+		}
 	}
 }
 
 //defer timer(time.Now(), "Request time plus setup")
-func timer(start time.Time, name string) {
+func Timer(start time.Time, name string) {
 	timeTaken := time.Since(start)
 	log.Printf("%s took %s", name, timeTaken)
 }
