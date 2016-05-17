@@ -11,7 +11,7 @@ import (
 var headerFlag = flag.String("h", "", "The header for the request")
 var numRequestFlag = flag.Int("n", 1, "The number of requests")
 var concurrentRequestFlag = flag.Int("c", 1, "The number of concurrent requests")
-var requestTypeFlag = flag.String("m", "GET", "The type of the request")
+var requestTypeFlag = flag.String("r", "GET", "The type of the request")
 
 type httpResponse struct {
 	*http.Response
@@ -46,7 +46,8 @@ func worker(transport *http.Transport, requestChannel chan *http.Request, respon
 	}
 }
 
-func processResults(responseChannel chan httpResponse, numberOfRequests int) {
+func processResults(responseChannel chan httpResponse, numberOfRequests int) (int64, int64) {
+	var successfulConnections, totalTime int64
 	for request := 0;  request < numberOfRequests; request++ {
 		select {
 			case response, ok := <-responseChannel:
@@ -54,7 +55,8 @@ func processResults(responseChannel chan httpResponse, numberOfRequests int) {
 					if response.err != nil {
 						log.Println(response.err)
 					} else {
-						fmt.Println(time.Duration(response.timeTaken))
+						successfulConnections++
+						totalTime += response.timeTaken
 						if err := response.Body.Close(); err != nil {
 							log.Println(response.err)
 						}
@@ -62,6 +64,7 @@ func processResults(responseChannel chan httpResponse, numberOfRequests int) {
 				}
 		}
 	}
+	return successfulConnections, totalTime
 }
 
 func timer(start time.Time, name string) {
@@ -77,5 +80,10 @@ func main() {
 	go distributeWork(httpRequestChannel, *numRequestFlag, *requestTypeFlag, webServerToBench)
 	defer timer(time.Now(), "Time of all requests")
 	go workPool(httpRequestChannel, httpResponseChannel, *concurrentRequestFlag)
-	processResults(httpResponseChannel, *numRequestFlag)
+	successfulConnections, totalTime := processResults(httpResponseChannel, *numRequestFlag)
+	averageTime := time.Duration(totalTime/successfulConnections)
+	fmt.Println("Web Server To Bench: \t", webServerToBench)
+	fmt.Println("Number of Requests \t", *numRequestFlag)
+	fmt.Println("Concurrency Level: \t", *concurrentRequestFlag)
+	fmt.Println("Average Request Time: \t", averageTime)
 }
