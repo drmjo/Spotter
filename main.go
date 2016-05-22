@@ -8,15 +8,13 @@ import (
 	"fmt"
 )
 
-var headerFlag = flag.String("h", "", "The header for the request")
-var numRequestFlag = flag.Int("n", 1, "The number of requests")
-var concurrentRequestFlag = flag.Int("c", 1, "The number of concurrent requests")
-var requestTypeFlag = flag.String("r", "GET", "The type of the request")
+var requestFlags cliFlags
 
-type httpResponse struct {
-	*http.Response
-	err error
-	timeTaken int64
+func init() {
+	 requestFlags.header = flag.String("h", "", "The header for the request")
+	 requestFlags.requestNumber = flag.Int("n", 1, "The number of requests")
+	 requestFlags.concurrentRequests = flag.Int("c", 1, "The number of concurrent requests")
+	 requestFlags.requestType = flag.String("r", "GET", "The type of the request")
 }
 
 func distributeWork(requestChannel chan *http.Request, numberOfRequests int, requestType string, url string) {
@@ -67,9 +65,10 @@ func processResults(responseChannel chan httpResponse, numberOfRequests int) (in
 	return successfulConnections, totalTime
 }
 
+// Probably going to throw this out.
 func timer(start time.Time, name string) {
 	timeTaken := time.Since(start)
-	log.Printf("%s took %s", name, timeTaken)
+	fmt.Println(name, timeTaken)
 }
 
 func main() {
@@ -77,13 +76,15 @@ func main() {
 	webServerToBench := flag.Arg(0)
 	httpRequestChannel := make(chan *http.Request)
 	httpResponseChannel := make(chan httpResponse)
-	go distributeWork(httpRequestChannel, *numRequestFlag, *requestTypeFlag, webServerToBench)
-	defer timer(time.Now(), "Time of all requests")
-	go workPool(httpRequestChannel, httpResponseChannel, *concurrentRequestFlag)
-	successfulConnections, totalTime := processResults(httpResponseChannel, *numRequestFlag)
+    defer timer(time.Now(), "Time to Complete: \t")
+	go distributeWork(httpRequestChannel, *requestFlags.requestNumber, *requestFlags.requestType, webServerToBench)
+	go workPool(httpRequestChannel, httpResponseChannel, *requestFlags.concurrentRequests)
+	successfulConnections, totalTime := processResults(httpResponseChannel, *requestFlags.requestNumber)
 	averageTime := time.Duration(totalTime/successfulConnections)
 	fmt.Println("Web Server To Bench: \t", webServerToBench)
-	fmt.Println("Number of Requests \t", *numRequestFlag)
-	fmt.Println("Concurrency Level: \t", *concurrentRequestFlag)
+	fmt.Println("Number of Requests \t", *requestFlags.requestNumber)
+	fmt.Println("Successful Requests: \t", successfulConnections)
+	fmt.Println("Concurrency Level: \t", *requestFlags.concurrentRequests)
+	fmt.Println("Total Request Time: \t", time.Duration(totalTime))
 	fmt.Println("Average Request Time: \t", averageTime)
 }
