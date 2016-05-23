@@ -1,5 +1,7 @@
 package main 
 
+import "net/http"
+
 type cliFlags struct {
 	header *string
 	requestNumber *int
