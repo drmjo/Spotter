@@ -3,3 +3,5 @@ bin
 pkg
 src
 debug
+package main
+notes

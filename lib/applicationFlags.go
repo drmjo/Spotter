@@ -1,4 +1,4 @@
-package spotter
+package lib
 
 // ApplicationFlags is a struct representation of what important information is needed to run Spotter.
 type ApplicationFlags struct {
@@ -7,7 +7,6 @@ type ApplicationFlags struct {
 	requestNumber      int
 	concurrentRequests int
 	requestType        string
-	usage              func()
 }
 
 // NewApplicationFlags creates a new instance of our application flags that can be mapped to.
@@ -55,12 +54,56 @@ func (a *ApplicationFlags) GetRequestType() string {
 	return a.requestType
 }
 
-// SetUsage accepts a callable to be invoked when the usage of ApplicationFlags is desired.
-func (a *ApplicationFlags) SetUsage(b func()) {
-	a.usage = b
-}
+// import (
+// 	"net/http"
+// 	"log"
+// 	"time"
+// )
 
-// GetUsage is an accessor to the usage callable to be invoked during a fail state.
-func (a *ApplicationFlags) GetUsage() func() {
-	return a.usage
-}
+// func distributeWork(requestChannel chan *http.Request, numberOfRequests int, requestType string, url string) {
+// 	for i := 0; i < numberOfRequests; i++ {
+// 		request, err := http.NewRequest(requestType, url, nil)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 		}
+// 		requestChannel <- request
+// 	}
+// }
+
+// func workPool(requestChannel chan *http.Request, responseChannel chan httpResponse, concurrencyLevel int) {
+// 	transport := &http.Transport{}
+// 	for i := 0; i < concurrencyLevel; i++ {
+// 		go worker(transport, requestChannel, responseChannel)
+// 	}
+// }
+
+// func worker(transport *http.Transport, requestChannel chan *http.Request, responseChannel chan httpResponse) {
+// 	for work := range requestChannel {
+// 		start := time.Now()
+// 		responseRoundtrip, err := transport.RoundTrip(work)
+// 		timeTaken := time.Since(start)
+// 		response := httpResponse{responseRoundtrip, err, int64(timeTaken)}
+// 		responseChannel <- response
+// 	}
+// }
+
+// func processResults(responseChannel chan httpResponse, numberOfRequests int) (int64, int64) {
+// 	var successfulConnections, totalTime int64
+// 	for request := 0; request < numberOfRequests; request++ {
+// 		select {
+// 			case response, ok := <-responseChannel:
+// 				if ok {
+// 					if response.err != nil {
+// 						log.Println(response.err)
+// 					} else {
+// 						successfulConnections++
+// 						totalTime += response.timeTaken
+// 						if err := response.Body.Close(); err != nil {
+// 							log.Println(response.err)
+// 						}
+// 					}
+// 				}
+// 		}
+// 	}
+// 	return successfulConnections, totalTime
+// }

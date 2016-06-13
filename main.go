@@ -5,26 +5,33 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hunterel/spotter"
+	spotter "github.com/hunterel/spotter/lib"
 )
 
 func main() {
-	cliFlags := spotter.NewApplicationFlags()
-	cliFlags.set = func() {
+	cliFlags := spotter.ApplicationFlags{}
+	headers := flag.String("h", "", "Headers for the http request")
+	requests := flag.Int("n", 1, "Number of http requests to make")
+	concurrency := flag.Int("c", 1, "Concurrency level for making http requests")
+	requestType := flag.String("r", "GET", "Type of http request to make")
+	usage := func() {
 		fmt.Printf("Usage of %s:\n", os.Args[0])
 		fmt.Printf("  spotter -r 10 -c 2 -r GET https://example.com\n")
 		flag.PrintDefaults()
+
 	}
 
-	cliFlags := applicationFlags{}
 	flag.Parse()
 	if flag.NArg() == 0 {
-		flag.Usage()
+		usage()
 		os.Exit(1)
 	}
+	cliFlags.SetHeaders(*headers)
+	cliFlags.SetRequestNumber(*requests)
+	cliFlags.SetRequestType(*requestType)
+	cliFlags.SetConcurrentRequestNumber(*concurrency)
 
-	fmt.Printf("%+v\n", cliFlags)
-
+	fmt.Printf("%+v", cliFlags)
 	// webServerToBench := flag.Arg(0)
 	// httpRequestChannel := make(chan *http.Request)
 	// httpResponseChannel := make(chan httpResponse)
