@@ -30,9 +30,9 @@ func main() {
 	cliFlags.SetRequestNumber(*requests)
 	cliFlags.SetRequestType(*requestType)
 	cliFlags.SetConcurrentRequestNumber(*concurrency)
+	cliFlags.SetURL(flag.Arg(0))
 
 	fmt.Printf("%+v", cliFlags)
-	// webServerToBench := flag.Arg(0)
 	// httpRequestChannel := make(chan *http.Request)
 	// httpResponseChannel := make(chan httpResponse)
 	// go distributeWork(httpRequestChannel, *cliFlags.requestNumber, *cliFlags.requestType, webServerToBench)

@@ -2,11 +2,11 @@ package lib
 
 // ApplicationFlags is a struct representation of what important information is needed to run Spotter.
 type ApplicationFlags struct {
-	// headers will need to change to map.
 	headers            string
 	requestNumber      int
 	concurrentRequests int
 	requestType        string
+	url				   string
 }
 
 // NewApplicationFlags creates a new instance of our application flags that can be mapped to.
@@ -34,6 +34,11 @@ func (a *ApplicationFlags) SetRequestType(requestType string) {
 	a.requestType = requestType
 }
 
+// SetURL will set the URL to make requests against for this associated instance of ApplicationFlags.
+func (a *ApplicationFlags) SetURL(url string) {
+	a.url = url
+}
+
 // GetHeaders is an accessor to the headers property for the associated instance of ApplicationFlags.
 func (a *ApplicationFlags) GetHeaders() string {
 	return a.headers
@@ -52,6 +57,12 @@ func (a *ApplicationFlags) GetConcurrentRequestNumber() int {
 // GetRequestType is an accessor to the request type property for the associated instance of ApplicationFlags.
 func (a *ApplicationFlags) GetRequestType() string {
 	return a.requestType
+}
+
+// GetURL is an accessor to the url property for the associated instance of ApplicationFlags.
+func (a *ApplicationFlags) GetURL() string {
+	// TODO this can most likely change to a parsing into type URL then grab relevant information from it. 
+	return a.url
 }
 
 // import (
