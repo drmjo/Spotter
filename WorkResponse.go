@@ -1,12 +1,21 @@
 package main
 
+import (
+	"net/http"
+	"time"
+)
+
 type WorkResponse struct {
-	// TODO: Fill in with pertinent response details
-	message string
-	id      int
+	HTTPResponse *http.Response
+	Start        time.Time
+	End          time.Time
 }
 
-func NewWorkResponse() *WorkResponse {
-	workResponse := &WorkResponse{}
+func NewWorkResponse(httpResp *http.Response, start time.Time, end time.Time) *WorkResponse {
+	workResponse := &WorkResponse{
+		HTTPResponse: httpResp,
+		Start:        start,
+		End:          end,
+	}
 	return workResponse
 }

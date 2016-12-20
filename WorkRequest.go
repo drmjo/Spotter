@@ -1,16 +1,20 @@
 package main
 
+import (
+	"net/http"
+)
+
 type WorkRequest struct {
 	NumberOfWorkers  int
 	NumberOfRequests int
-	RequestVerb      string
+	HTTPRequest      *http.Request
 }
 
-func NewWorkRequest(workerNum int, reqNumber int, verb string) WorkRequest {
+func NewWorkRequest(workerNum int, reqNumber int, httpReq *http.Request) WorkRequest {
 	workRequest := WorkRequest{
 		NumberOfWorkers:  workerNum,
 		NumberOfRequests: reqNumber,
-		RequestVerb:      verb,
+		HTTPRequest:      httpReq,
 	}
 
 	return workRequest
