@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"time"
 )
 
 type Dispatcher struct {
@@ -11,7 +11,6 @@ type Dispatcher struct {
 }
 
 var ResultChannel chan WorkResponse
-var client *http.Client
 
 func NewDispatcher(work *WorkRequest) *Dispatcher {
 	pool := make(chan chan WorkRequest, (*work).NumberOfWorkers)
@@ -21,20 +20,43 @@ func NewDispatcher(work *WorkRequest) *Dispatcher {
 func (d *Dispatcher) Run() {
 
 	ResultChannel := make(chan WorkResponse, d.work.NumberOfRequests)
-	// NOTE: Can set redirect policy here and other http client settings.
-	client := &http.Client{}
+
 	// NOTE: start goroutines equal to worker number then go through request count and handout requests.
 	for i := 0; i < d.work.NumberOfWorkers; i++ {
-		fmt.Printf("Starting Worker: %d \n", i+1)
+		//fmt.Printf("Starting Worker: %d \n", i+1)
 		worker := NewWorker(i, d.WorkerPool)
 		worker.Start(ResultChannel)
 	}
 
 	go d.dispatch()
+
+	// NOTE: Will only store the result time per status code to start.
+	aggregateMap := make(map[int][]time.Duration)
+
 	for i := 0; i < d.work.NumberOfRequests; i++ {
 		result := <-ResultChannel
-		// NOTE: should collect results in some structure here then do aggregations after the fact.
-		fmt.Printf("%d %s\n", result.id, result.message)
+		//fmt.Printf("Status code %d, time %s\n", result.HTTPResponse.StatusCode, result.End.Sub(result.Start))
+		aggregateMap[result.HTTPResponse.StatusCode] = append(aggregateMap[result.HTTPResponse.StatusCode], result.End.Sub(result.Start))
+	}
+
+	resultMap := make(map[int]float64)
+
+	for k, v := range aggregateMap {
+		var averageTime float64
+		if len(v) != 0 {
+			var totalTime int64
+			for _, i := range v {
+				totalTime += int64(i)
+			}
+			averageTimeNS := (float64(totalTime) / float64(len(v)))
+			averageTime = (averageTimeNS / float64(1000))/float64(1000)
+		}
+
+		resultMap[k] = averageTime
+	}
+
+	for k, v := range resultMap {
+		fmt.Printf("Average time for status code %d: %fms\n", k, v)
 	}
 }
 

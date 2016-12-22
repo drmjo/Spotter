@@ -57,9 +57,18 @@ func main() {
 }
 
 func checkURL(uri string) *url.URL {
+	if !strings.Contains(uri, "://") && !strings.HasPrefix(uri, "//") {
+		uri = "//" + uri
+	}
+
 	url, error := url.Parse(uri)
 	if error != nil {
 		log.Fatalf("Could not parse url %q: %v", url, error)
+	}
+
+	if url.Scheme == "" {
+		fmt.Printf("No URL Scheme detected. Falling back to http.")
+		url.Scheme = "http"
 	}
 
 	return url
