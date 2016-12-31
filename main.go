@@ -97,7 +97,17 @@ func extractHeaderValue(header string) (string, string) {
 	return splitHeader[0], splitHeader[1]
 }
 
+// NOTE: body could be delivered as a file "@relativePathToFile"
 func makeHttpBody(body string) io.Reader {
+	if strings.HasPrefix(body, "@") {
+		fileName := body[1:]
+		file, err := os.Open(fileName)
+		if err != nil {
+			log.Fatalf("Could not read from File %s %v", fileName, err)
+		}
+		// NOTE: Type os.File implments Read so it can be an io.Reader
+		return file
+	}
 	return strings.NewReader(body)
 }
 

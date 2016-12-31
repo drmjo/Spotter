@@ -5,3 +5,5 @@ src
 debug
 package main
 notes
+.idea/
+*.json
