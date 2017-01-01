@@ -49,7 +49,7 @@ func (d *Dispatcher) Run() {
 				totalTime += int64(i)
 			}
 			averageTimeNS := (float64(totalTime) / float64(len(v)))
-			averageTime = (averageTimeNS / float64(1000))/float64(1000)
+			averageTime = (averageTimeNS / float64(1000)) / float64(1000)
 		}
 
 		resultMap[k] = averageTime

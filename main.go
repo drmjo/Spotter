@@ -20,14 +20,18 @@ var (
 	requestMethod  string
 	requestBody    string
 	requestHeaders headers
+	displayVersion bool
+	version        = "dev" // replaced during make with -ldflags
+	build          = "dev" // replaced durking make with -ldflags
 )
 
 func init() {
-	flag.IntVar(&workers, "c", 1, "The number of workers.")
-	flag.IntVar(&requests, "n", 1, "The number of requests.")
-	flag.StringVar(&requestMethod, "r", "GET", "The request type.")
-	flag.StringVar(&requestBody, "d", "", "The request data.")
+	flag.IntVar(&workers, "c", 1, "The number of workers")
+	flag.IntVar(&requests, "n", 1, "The number of requests")
+	flag.StringVar(&requestMethod, "r", "GET", "The request type")
+	flag.StringVar(&requestBody, "d", "", "The request data")
 	flag.Var(&requestHeaders, "h", "The request headers")
+	flag.BoolVar(&displayVersion, "v", false, "Prints the version")
 	flag.Usage = usage
 }
 
@@ -39,6 +43,11 @@ func usage() {
 func main() {
 
 	flag.Parse()
+
+	if displayVersion {
+		fmt.Printf("Version: %s\nBuild: %s\n", version, build)
+		os.Exit(0)
+	}
 
 	args := flag.Args()
 	if len(args) != 1 {
@@ -67,7 +76,7 @@ func checkURL(uri string) *url.URL {
 	}
 
 	if url.Scheme == "" {
-		fmt.Printf("No URL Scheme detected. Falling back to http.")
+		fmt.Printf("Could not find URL scheme, using http instead.")
 		url.Scheme = "http"
 	}
 

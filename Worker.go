@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
-	"time"
 	"net/http"
+	"time"
 )
 
 // Dial: (&net.Dialer {
@@ -13,12 +13,12 @@ import (
 
 // NOTE: Can configure SSL and redirect policy here later.
 var transport = &http.Transport{
-		Proxy:                 http.ProxyFromEnvironment,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-	}
+	Proxy:                 http.ProxyFromEnvironment,
+	MaxIdleConns:          100,
+	IdleConnTimeout:       90 * time.Second,
+	TLSHandshakeTimeout:   10 * time.Second,
+	ExpectContinueTimeout: 1 * time.Second,
+}
 
 var client = &http.Client{
 	Transport: transport,
@@ -52,7 +52,7 @@ func (w *Worker) Start(resultChannel chan WorkResponse) {
 				start := time.Now()
 				resp, err := client.Do(job.HTTPRequest)
 				end := time.Now()
-				
+
 				if err != nil {
 					log.Fatalf("Couldn't complete HTTP Request %v", err)
 				}
