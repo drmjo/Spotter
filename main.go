@@ -76,7 +76,7 @@ func checkURL(uri string) *url.URL {
 	}
 
 	if url.Scheme == "" {
-		fmt.Printf("Could not find URL scheme, using http instead.")
+		fmt.Println("Could not find URL scheme, using http instead.")
 		url.Scheme = "http"
 	}
 

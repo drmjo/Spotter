@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"time"
+	"io/ioutil"
 )
 
 type Dispatcher struct {
@@ -35,6 +36,16 @@ func (d *Dispatcher) Run() {
 
 	for i := 0; i < d.work.NumberOfRequests; i++ {
 		result := <-ResultChannel
+		display := &statsDisplay{}
+		bodyBytes, err := ioutil.ReadAll(result.HTTPResponse.Body)
+		var bodyString string
+		if err != nil {
+			bodyString = "Could not read request body"
+		} else {
+			bodyString = string(bodyBytes)
+		}
+		
+		aggregateMap[result.HTTPResponse.StatusCode] =
 		//fmt.Printf("Status code %d, time %s\n", result.HTTPResponse.StatusCode, result.End.Sub(result.Start))
 		aggregateMap[result.HTTPResponse.StatusCode] = append(aggregateMap[result.HTTPResponse.StatusCode], result.End.Sub(result.Start))
 	}
@@ -58,6 +69,11 @@ func (d *Dispatcher) Run() {
 	for k, v := range resultMap {
 		fmt.Printf("Average time for status code %d: %fms\n", k, v)
 	}
+}
+
+type statsDisplay struct {
+	timeTake time.Duration
+	response string
 }
 
 func (d *Dispatcher) dispatch() {
