@@ -20,5 +20,10 @@ run `go install github.com/hunterel/spotter`
 - Run a benchmark, `spotter -n 100 -c 10 -r "POST" -d "{"test":"test"}" -h "access-token: superSecureToken" www.MyDomainToTest.com/input`
 - Output is currently bucketed by status code and returned as a formatted string, but will eventually be returned as JSON.
 
+## Want To Open The Output JSON File In a UI Project?
+No problem, fam.
+See this repo I'm working on: https://github.com/HunterEl/Spotter-ui
+
 ## Comments / Suggestions?
 Please make an issue or pull-request. I'm making this tool to help me with work, but if there is a feature you would like or problem you have, I would love to help.
+
