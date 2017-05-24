@@ -4,8 +4,12 @@ Work In Progress.
 ## What Exactly Does Spotter Do?
 Spotter is a tool to help you benchmark web servers. 
 
+## What It Looks Like
+![screenshot](https://cloud.githubusercontent.com/assets/6547952/26384250/c117f562-3fec-11e7-9af5-ef07590c6129.png)
+
+
 ## Requirements
-Built using Go 1.7
+Built using Go 1.7 (Might be compatible with 1.8 but I haven't tried yet)
 
 ## Want To Try It Out?
 - Assuming you have Go 1.7 installed on your system and the proper environment variables setup ($GOBIN), 
@@ -26,4 +30,3 @@ See this repo I'm working on: https://github.com/HunterEl/Spotter-ui
 
 ## Comments / Suggestions?
 Please make an issue or pull-request. I'm making this tool to help me with work, but if there is a feature you would like or problem you have, I would love to help.
-
