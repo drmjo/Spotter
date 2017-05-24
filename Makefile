@@ -8,9 +8,12 @@ LDFLAGS=-ldflags "-X main.version=$(VERSION) -X main.build=$(BUILD)"
 .DEFAULT_GOAL: $(BINARY)
 
 $(BINARY):
-	go build $(LDFLAGS) -o $(BINARY) ./*.go
+	go build ${LDFLAGS} -o ${BINARY} spotter.go
+
+install:
+	go install ${LDFLAGS} ./*.go 
 
 clean:
-	if [ -f $(BINARY) ] ; then rm $(BINARY) ; fi
+	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
 
-.PHONY: clean 
+.PHONY: clean install
