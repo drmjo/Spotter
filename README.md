@@ -14,6 +14,7 @@ run `go install github.com/hunterel/spotter`
 * `-n` Number of HTTP requests to make.
 * `-c` Number of workers to make HTTP requests.
 * `-r` Request method to use (GET, POST, PUT, DELETE, OPTIONS, HEAD)
+* `-o` A File path location for an output JSON file.
 * `-d` Request body for the HTTP Request (Can use files instead by specifying "@relativeFileLocation")
 * `-h` Request Headers. Repeatable command.
 - Run a benchmark, `spotter -n 100 -c 10 -r "POST" -d "{"test":"test"}" -h "access-token: superSecureToken" www.MyDomainToTest.com/input`
