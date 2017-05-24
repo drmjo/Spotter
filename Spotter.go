@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -42,10 +43,22 @@ type Result struct {
 	// more variables to follow
 }
 
+type Output struct {
+	category string
+	respBody string
+}
+
+type ResultFile struct {
+	Net  []string
+	Bad  []string
+	Succ []string
+}
+
 type Configuration struct {
-	request  *http.Request
-	client   *http.Client
-	requests int64
+	request      *http.Request
+	client       *http.Client
+	requests     int64
+	resultBuffer chan *Output
 }
 
 var (
@@ -67,21 +80,6 @@ func init() {
 	flag.Var(&requestHeaders, "h", "The Request Headers")
 	flag.BoolVar(&displayVersion, "v", false, "Version")
 	flag.Usage = usage
-}
-
-func printResults(results map[int]*Result) {
-	var total int64
-	var netFailed int64
-	var success int64
-	var badFailed int64
-	for _, v := range results {
-		total += v.requests
-		netFailed += v.networkFailed
-		success += v.success
-		badFailed += v.badFailed
-	}
-
-	fmt.Printf("\nStats:\nRequest Number: %d\nSuccessful: %d\nNetwork Failed: %d\nBad Failed: %d\n", total, success, netFailed, badFailed)
 }
 
 func main() {
@@ -126,13 +124,15 @@ func main() {
 
 	httpClient := &http.Client{
 		Transport: transport,
-		Timeout:   10 * time.Second, // TODO: This should be passed in as a `timeout` switch.
 	}
+
+	bufferedChan := make(chan *Output, requests*int64(clients))
 
 	config := &Configuration{
 		httpRequest,
 		httpClient,
 		requests,
+		bufferedChan,
 	}
 
 	barrier.Add(clients)
@@ -142,12 +142,43 @@ func main() {
 		go bench(config, result, &barrier)
 	}
 
+	total := 0
+	netFailed := 0
+	badFailed := 0
+	succ := 0
+	file := &ResultFile{}
 	fmt.Printf("Waiting for %d clients to finish...\n", clients)
 	barrier.Wait()
 	elapsed := float64(time.Since(start).Seconds())
+	close(bufferedChan)
 
-	printResults(results)
-	fmt.Printf("Program took: %10f second(s)\n", elapsed)
+	for output := range bufferedChan {
+		switch output.category {
+		case "net":
+			netFailed++
+			file.Net = append(file.Net, output.respBody)
+		case "bad":
+			badFailed++
+			file.Bad = append(file.Bad, output.respBody)
+		case "succ":
+			succ++
+			file.Succ = append(file.Succ, output.respBody)
+		}
+		total++
+	}
+
+	stats, err := json.Marshal(file)
+	if err != nil {
+		fmt.Println("ERROR MARSHALLING JSON: ", err)
+	}
+
+	err = ioutil.WriteFile("output.json", stats, 0644)
+	if err != nil {
+		fmt.Println("Couldn't write file: ", err)
+	}
+
+	fmt.Printf("\nRequest Number: %d\nSuccessful: %d\nNetwork Failed: %d\nBad Failed: %d\nRequests Per Second: %10f", total, succ, netFailed, badFailed, float64(total)/elapsed)
+	fmt.Printf("\nProgram took: %10f second(s)\n", elapsed)
 }
 
 // Can Configure SSL and redirect policy later.
@@ -164,28 +195,25 @@ func bench(conf *Configuration, result *Result, barrier *sync.WaitGroup) {
 
 		resp, err := conf.client.Do(conf.request)
 		result.requests++
-		//fmt.Println("Incremented!")
 		if err != nil {
-			result.networkFailed++
+			conf.resultBuffer <- &Output{"net", err.Error()}
 			continue
 		}
 
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Println(err)
-		} else {
-			fmt.Println(string(bodyBytes))
+			fmt.Println("ERROR: ", err.Error())
 		}
 
 		statusCode := resp.StatusCode
 		if statusCode == 200 {
-			result.success++
+			conf.resultBuffer <- &Output{"succ", string(bodyBytes)}
 		} else {
-			result.badFailed++
+			conf.resultBuffer <- &Output{"bad", string(bodyBytes)}
 		}
 	}
 
-	// treating like thread barrier in Java.
+	// Treating like thread barrier in Java.
 	barrier.Done()
 }
 
