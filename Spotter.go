@@ -66,6 +66,7 @@ var (
 	clients        int
 	requestMethod  string
 	requestBody    string
+	outputFile     string
 	requestHeaders headers
 	displayVersion bool
 	version        = "dev" // replace during make with -ldflags
@@ -77,6 +78,7 @@ func init() {
 	flag.IntVar(&clients, "c", 1, "Number of workers")
 	flag.StringVar(&requestMethod, "r", "GET", "HTTP Request Type")
 	flag.StringVar(&requestBody, "d", "", "The Request Data")
+	flag.StringVar(&outputFile, "o", "", "The Output File Location")
 	flag.Var(&requestHeaders, "h", "The Request Headers")
 	flag.BoolVar(&displayVersion, "v", false, "Version")
 	flag.Usage = usage
@@ -167,14 +169,15 @@ func main() {
 		total++
 	}
 
-	stats, err := json.Marshal(file)
-	if err != nil {
-		fmt.Println("ERROR MARSHALLING JSON: ", err)
-	}
-
-	err = ioutil.WriteFile("output.json", stats, 0644)
-	if err != nil {
-		fmt.Println("Couldn't write file: ", err)
+	if outputFile != "" {
+		stats, err := json.Marshal(file)
+		if err != nil {
+			fmt.Println("ERROR MARSHALLING JSON: ", err)
+		}
+		err = writeOutputFile(outputFile, stats)
+		if err != nil {
+			fmt.Println("Couldn't write file: ", err)
+		}
 	}
 
 	fmt.Printf("\nRequest Number: %d\nSuccessful: %d\nNetwork Failed: %d\nBad Failed: %d\nRequests Per Second: %10f", total, succ, netFailed, badFailed, float64(total)/elapsed)
@@ -254,9 +257,10 @@ func createHttpBody(body string) io.Reader {
 	return strings.NewReader(body)
 }
 
-func writeOutputFile(location string, body []byte) {
-	if _, err := os.Stat(location); err != nil {
-		fmt.Println("File %s Exists!", location)
+func writeOutputFile(location string, body []byte) error {
+	_, err := os.Stat(location)
+	if err == nil {
+		fmt.Printf("\nFile %s Exists!\n", location)
 		scanner := bufio.NewScanner(os.Stdin)
 		var text string
 		for {
@@ -267,10 +271,13 @@ func writeOutputFile(location string, body []byte) {
 				fmt.Println("Exiting!")
 				os.Exit(1)
 			} else if strings.EqualFold(text, "y") {
-				ioutil.WriteFile(location, body, 0644)
+				err := ioutil.WriteFile(location, body, 0644)
+				return err
 			}
-			// maybe allow q or other things to quit?
 		}
+	} else {
+		err := ioutil.WriteFile(location, body, 0644)
+		return err
 	}
 }
 
