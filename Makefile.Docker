@@ -1,0 +1,24 @@
+BINARY=spotter
+
+VERSION=0.0.1
+BUILD=$(shell git rev-parse HEAD)
+
+LDFLAGS=-ldflags "-X main.version=$(VERSION) -X main.build=$(BUILD)"
+
+ARCH=amd64
+OS=darwin
+
+.DEFAULT_GOAL: $(BINARY)
+
+$(BINARY):
+	docker run --rm \
+		-v `pwd`:/go \
+		-e GOARCH=${ARCH} \
+		-e GOOS=${OS} \
+		golang:alpine \
+		go build ${LDFLAGS} -o bin/${BINARY} Spotter.go
+
+clean:
+	if [ -f bin/${BINARY} ] ; then rm bin/${BINARY} ; fi
+
+.PHONY: clean
